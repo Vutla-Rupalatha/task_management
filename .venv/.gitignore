@@ -1,0 +1,24 @@
+# created by virtualenv automatically
+*# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE files (e.g., PyCharm, VSCode)
+.idea/
+.vscode/
+
+# Flask instance folder
+instance/
+
+# Database files
+*.db
+*.sqlite
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+

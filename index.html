@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management System</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        input, textarea, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #taskList {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .task {
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Task Management System</h1>
+
+    <form id="taskForm">
+        <input type="text" id="title" placeholder="Task Title" required>
+        <textarea id="description" placeholder="Task Description"></textarea>
+        <input type="date" id="dueDate" required>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <h2>All Tasks</h2>
+    <div id="taskList"></div>
+
+    <script>
+        // JavaScript to handle the form and fetch tasks
+        document.getElementById("taskForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent form submission
+
+            // Get form values
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const dueDate = document.getElementById("dueDate").value;
+
+            // Add a new task via the API
+            fetch("http://127.0.0.1:5000/tasks", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    title: title,
+                    description: description,
+                    due_date: dueDate,
+                }),
+            })
+                .then((response) => response.json())
+                .then(() => {
+                    loadTasks(); // Refresh task list after adding a task
+                    document.getElementById("taskForm").reset(); // Reset form fields
+                })
+                .catch((error) => console.error("Error:", error));
+        });
+
+        function loadTasks() {
+            // Fetch all tasks from the API and display them
+            fetch("http://127.0.0.1:5000/tasks")
+                .then((response) => response.json())
+                .then((tasks) => {
+                    const taskList = document.getElementById("taskList");
+                    taskList.innerHTML = ""; // Clear existing tasks
+
+                    // Loop through tasks and create HTML to display each task
+                    tasks.forEach((task) => {
+                        const taskDiv = document.createElement("div");
+                        taskDiv.classList.add("task");
+                        taskDiv.innerHTML = `
+                            <strong>${task.title}</strong><br>
+                            ${task.description}<br>
+                            Due: ${task.due_date}<br>
+                            Status: ${task.status}<br>
+                            <button onclick="deleteTask(${task.id})">Delete</button>
+                        `;
+                        taskList.appendChild(taskDiv);
+                    });
+                })
+                .catch((error) => console.error("Error:", error));
+        }
+
+        function deleteTask(id) {
+            // Delete a task via the API
+            fetch(`http://127.0.0.1:5000/tasks/${id}`, {
+                method: "DELETE",
+            })
+                .then(() => loadTasks()) // Refresh task list after deletion
+                .catch((error) => console.error("Error:", error));
+        }
+
+        // Load tasks when the page loads
+        loadTasks();
+    </script>
+</body>
+</html>
